@@ -1,9 +1,9 @@
 import fs from 'fs/promises';
 import { Readable } from 'stream';
 
-import ytdl from 'ytdl-core';
-import ytsr from 'ytsr';
-import ytpl from 'ytpl';
+import ytdl from '@distube/ytdl-core';
+import ytsr from '@distube/ytsr';
+import ytpl from '@distube/ytpl';
 
 import { HIGH_WATER_MARK } from './constants';
 import logger from './logger';
@@ -27,10 +27,11 @@ export async function getYoutubeSong(link: string): Promise<ISong> {
 }
 
 export async function getStream(link: string): Promise<Readable> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const stream = ytdl(link, {
       filter: 'audioonly',
       highWaterMark: HIGH_WATER_MARK,
+      dlChunkSize: 0,
     });
 
     let startTime: number;
@@ -41,7 +42,7 @@ export async function getStream(link: string): Promise<Readable> {
     });
 
     stream.on('error', (error) => {
-      logger.error('Ytdl stream error: ', error);
+      reject(error);
     });
 
     stream.on('progress', (chunkLength, downloadedBytes, totalBytes) => {
@@ -65,9 +66,9 @@ export async function getLink(keywords: string): Promise<string | null> {
 }
 
 export async function getVideosFromPlaylist(playlist: string): Promise<ISong[]> {
-  const searchResults = await ytpl(playlist);
+  const searchResults: ytpl.result = await ytpl(playlist);
 
-  return _formatVideos(searchResults.items);
+  return _formatVideos(searchResults);
 }
 
 export function stringTemplateParser(expression: string, valueObj: Record<string, string> = {}): string {
@@ -119,11 +120,11 @@ function _formatLength(length: number): string {
   return `${Math.floor(length / 60)}:${length % 60}`;
 }
 
-function _formatVideos(videos: ytpl.Item[]): ISong[] {
-  return videos.map((video) => ({
+function _formatVideos(results: ytpl.result): ISong[] {
+  return results.items.map((video) => ({
     title: video.title,
-    link: video.shortUrl,
-    length: videos[0].duration ?? '0',
+    link: video.url,
+    length: video.duration ?? '0',
     type: 'youtube',
   }));
 }

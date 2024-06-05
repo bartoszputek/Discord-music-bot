@@ -33,7 +33,7 @@ test('getLink(): should return youtube link for the keywords', async (t) => {
 });
 
 test('getVideosFromPlaylist(): should return videos from the youtube playlist', async (t) => {
-  const playlistLink: string = 'https://www.youtube.com/watch?v=etAIpkdhU9Q&list=PL8qme4y2QvF8hkucNTlM-sfePkSigFDD3';
+  const playlistLink: string = 'https://www.youtube.com/watch?v=hTWKbfoikeg&list=PLhwykgk4XwFlhenPwRXKx3pcOmCYfNe0Q';
 
   const songs: ISong[] = await getVideosFromPlaylist(playlistLink);
 
