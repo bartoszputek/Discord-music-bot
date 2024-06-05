@@ -1,5 +1,3 @@
-import process from 'node:process';
-
 import dotenv from 'dotenv';
 
 import App from './components/App.js';
